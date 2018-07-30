@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "preference": {
+            "type": "object",
+            "properties": {
+              "age": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "integer"
+                },
+                "max": {
+                  "type": "integer"
+                }
+              }
+            },
+              "species": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["cat", "dog", "rabbit"]
+                }
+              },
+              "breed": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["labrador", "poodle", "spaniel", "terrier"]
+                }
+              }
+            },
+            "required": ["age", "species", "breed"]
+          }
+        },
+        "required": ["preference"]
+      },
+      "minimum": 1
+    }
+  },
+  "required": ["data"]
+}

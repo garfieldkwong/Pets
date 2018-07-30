@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "preference": {
+        "age": {
+          "min": 1,
+          "max": 2
+        },
+        "breed": [
+          "abc"
+        ],
+        "species": [
+          "abc"
+        ]
+      }
+    }
+  ]
+}
+
