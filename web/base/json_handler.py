@@ -38,7 +38,7 @@ class JSONHandler(base.Base):
                     if self.debug_api:
                         self.logger.exception(exc)
                     self.send_error(
-                        status_code=exc.https_status, json_error=exc
+                        status_code=exc.http_status, json_error=exc
                     )
 
     def set_default_headers(self):

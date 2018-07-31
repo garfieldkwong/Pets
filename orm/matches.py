@@ -17,10 +17,10 @@ class Match(base.Base):
         """Query matched pets"""
         query = db_conn.query(
             customers.Customer
-        ).join(
-            pets.Pet
         ).outerjoin(
             Match
+        ).join(
+            pets.Pet
         ).filter(
             customers.Customer.id == customer_id
         )

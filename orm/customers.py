@@ -21,7 +21,7 @@ class Customer(base.Base):
             Customer
         ).join(
             PreferenceAge
-        ).join(
+        ).outerjoin(
             PreferenceSpecies
         ).outerjoin(
             PreferenceBreed
@@ -45,18 +45,18 @@ class Customer(base.Base):
             Customer
         ).join(
             PreferenceAge
-        ).join(
+        ).outerjoin(
             PreferenceSpecies
         ).outerjoin(
             PreferenceBreed
         ).filter(
             or_(PreferenceAge.min <= age, age <= PreferenceAge.max)
         ).filter(
-            PreferenceSpecies.name == species
+            or_(PreferenceSpecies.name == species, PreferenceSpecies.name.is_(None))
         )
         if utils.check_has_breed(species) and breed is not None:
             query = query.filter(
-                PreferenceBreed.name == breed
+                or_(PreferenceBreed.name == breed, preferenceBreed.name.is_(None))
             )
         return query.all()
 
