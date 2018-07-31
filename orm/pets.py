@@ -1,5 +1,5 @@
 """Pet model"""
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, or_
 from sqlalchemy.orm import relationship
 from . import base, customers, utils
 
@@ -36,9 +36,13 @@ class Pet(base.Base):
         if age_max is not None:
             query = query.filter(cls.age <= age_max)
         if species is not None:
-            query = query.filter(cls.species.in_(species))
+            query = query.filter(
+                or_(cls.species.is_(None), cls.species.in_(species))
+            )
         if breed is not None:
-            query = query.filter(cls.breed.in_(breed))
+            query = query.filter(
+                or_(cls.breed.is_(None), cls.breed.in_(breed))
+            )
         return query.all()
 
     @classmethod

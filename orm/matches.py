@@ -19,7 +19,7 @@ class Match(base.Base):
             customers.Customer
         ).outerjoin(
             Match
-        ).join(
+        ).outerjoin(
             pets.Pet
         ).filter(
             customers.Customer.id == customer_id
