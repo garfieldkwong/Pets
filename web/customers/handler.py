@@ -1,11 +1,10 @@
 """Pets handler"""
-import json
 from orm import customers
-from ..base import json_handler as json_base
+from ..matches import base
 from ..error import handler
 
 
-class Handler(json_base.JSONHandler):
+class Handler(base.Handler):
     """Pet handler"""
     json_schema = {
         'POST': (__package__, 'post_schema.json'),
@@ -39,36 +38,11 @@ class Handler(json_base.JSONHandler):
         self.db.commit()
         self.write_customers([customer])
 
+        # try matching after sent response
+        self.match_adding_customer(customer)
+
     @handler.coroutine
     def get(self, id=None):
         """Get handler"""
-        result = customers.Customer.query_customers_by_id(self.db, id)
+        result = customers.Customer.query_with_id(self.db, id)
         self.write_customers(result)
-
-    def write_customers(self, customers_list):
-        """Write pets data"""
-        data = []
-        for customer in customers_list:
-            species_list = []
-            for species in customer.preference_species:
-                species_list.append(species.name)
-            breed_list = []
-            for breed in customer.preference_breed:
-                breed_list.append(breed.name)
-            data.append({
-                'id': customer.id,
-                'preference': {
-                    'age': {
-                        'min': customer.preference_age[0].min,
-                        'max': customer.preference_age[0].max
-                    },
-                    'species': species_list,
-                    'breed': breed_list
-                }
-            })
-
-        self.write(json.dumps(
-            {
-                'data': data
-            }
-        ))

@@ -1,7 +1,7 @@
 """Customers model"""
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, Integer, ForeignKey, String, or_
 from sqlalchemy.orm import relationship
-from . import base
+from . import base, utils
 
 
 class Customer(base.Base):
@@ -11,9 +11,11 @@ class Customer(base.Base):
     preference_age = relationship('PreferenceAge')
     preference_species = relationship('PreferenceSpecies')
     preference_breed = relationship('PreferenceBreed')
+    matched_pets = relationship('Pet', secondary='matches', backref='Customer')
+    adopted_pets = relationship('Pet')
 
     @classmethod
-    def query_customers_by_id(cls, db_conn, id=None):
+    def query_with_id(cls, db_conn, id=None):
         """Query customer by id"""
         query = db_conn.query(
             Customer
@@ -21,11 +23,41 @@ class Customer(base.Base):
             PreferenceAge
         ).join(
             PreferenceSpecies
-        ).join(
+        ).outerjoin(
             PreferenceBreed
         )
         if id is not None:
-            query = query.filter(Customer.id == id)
+            query = query.filter(cls.id == id)
+        return query.all()
+
+    @classmethod
+    def query_only_customer_with_id(cls, db_conn, id):
+        """Query with id"""
+        query = db_conn.query(
+            Customer
+        ).filter(cls.id == id)
+        return query.one_or_none()
+
+    @classmethod
+    def query_with_preference(cls, db_conn, age, species, breed=None):
+        """Query with preference"""
+        query = db_conn.query(
+            Customer
+        ).join(
+            PreferenceAge
+        ).join(
+            PreferenceSpecies
+        ).outerjoin(
+            PreferenceBreed
+        ).filter(
+            or_(PreferenceAge.min <= age, age <= PreferenceAge.max)
+        ).filter(
+            PreferenceSpecies.name == species
+        )
+        if utils.check_has_breed(species) and breed is not None:
+            query = query.filter(
+                PreferenceBreed.name == breed
+            )
         return query.all()
 
 
@@ -53,5 +85,3 @@ class PreferenceBreed(base.Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String)
     customer_id = Column(Integer, ForeignKey(Customer.id))
-
-

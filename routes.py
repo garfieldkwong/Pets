@@ -24,13 +24,18 @@ The Customer adopts the given Pet
 
 The Pet and Customer should no longer appear in /matches queries
 """
-from web.pets import handler as pets_handler
+from web.adoptions import handler as adoption_handler
 from web.customers import handler as customer_handler
+from web.matches import match_pets, match_customer
+from web.pets import handler as pets_handler
 
 
 URLs = [
     (r"/pets", pets_handler.Handler),
-    (r"/pets/?([0-9])?", pets_handler.Handler),
+    (r"/pets/?([0-9]*)?", pets_handler.Handler),
     (r"/customers", customer_handler.Handler),
-    (r"/customers/?([0-9])?", customer_handler.Handler),
+    (r"/customers/?([0-9]*)?", customer_handler.Handler),
+    (r"/customers/([0-9]*)/matches", match_pets.Handler),
+    (r"/pets/([0-9]*)/matches", match_customer.Handler),
+    (r"/customers/([0-9]*)/adopt", adoption_handler.Handler),
 ]

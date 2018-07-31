@@ -3,7 +3,7 @@
 
 class BaseError(Exception):
     """Base error class"""
-    https_status = 500
+    http_status = 500
     error_code = 500
     msg_prefix = ''
 
@@ -31,5 +31,21 @@ class ValidationError(BaseError):
     """Data validation error.
     Web sematics: Invalid input (bad request)
     """
-    https_status = 400
+    http_status = 400
     error_code = 400
+
+
+class MissingInput(BaseError):
+    """Data validation error.
+        Web sematics: Invalid input (bad request)
+        """
+    http_status = 400
+    error_code = 400
+
+
+class ResourceNotFound(BaseError):
+    """Data validation error.
+    Web sematics: Resource not found
+    """
+    http_status = 404
+    error_code = 404

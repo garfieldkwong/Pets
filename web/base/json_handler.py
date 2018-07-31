@@ -17,10 +17,7 @@ class JSONHandler(base.Base):
     def prepare(self):
         """Incorporate request JSON into arguments dictionary"""
         if self.request.method in {'PUT', 'POST'}:
-            if not self.request.body:
-                exc = error.ValidationError('Missing HTTP body for PUT/POST')
-                self.send_error(status_code=exc.https_status, json_error=exc)
-            else:
+            if self.request.body:
                 try:
                     if self.get_json_schema(self.request.method) is None:
                         json_data = json.loads(
@@ -72,3 +69,20 @@ class JSONHandler(base.Base):
         except exceptions.ValidationError as exc:
             raise error.ValidationError(msg=exc.message)
         return msg_json
+
+    def handle_error(self, exc):
+        """Error handler routine"""
+        if self.debug_api:
+            self.logger.exception(exc)
+        if exc.http_status != 200:
+            self.set_status(exc.http_status)
+            self.write_error(exc.http_status)
+        else:
+            self.write(
+                json.dumps(
+                    {
+                        'status': exc.error_code,
+                        'output': exc.construct_msg()
+                    }
+                )
+            )
