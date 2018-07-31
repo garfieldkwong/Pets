@@ -3,6 +3,7 @@ import json
 from orm import customers, pets
 from ..base import json_handler
 from ..error import handler
+from ..notification import handler as ws_handler
 
 
 class Handler(json_handler.JSONHandler):
@@ -25,6 +26,16 @@ class Handler(json_handler.JSONHandler):
             item.matched_pets.append(adding_pet)
             adding_pet.matched_customers.append(item)
         self.db.commit()
+        for item in result:
+            session = ws_handler.sessions.get(item.id, None)
+            if session is not None:
+                session.write_message(
+                    json.dumps({
+                        'type': 'pet',
+                        'data': self.get_output_data(adding_pet)
+                    })
+                )
+
 
     def match_adding_customer(self, adding_customer):
         """Match the adding customer"""
@@ -46,18 +57,22 @@ class Handler(json_handler.JSONHandler):
             item.matched_customers.append(adding_customer)
         self.db.commit()
 
+    def get_output_data(self, pet):
+        """Get output data of per pet"""
+        return {
+            'id': pet.id,
+            'name': pet.name,
+            'available_from': pet.available_from.timestamp(),
+            'age': pet.age,
+            'species': pet.species,
+            'breed': pet.breed,
+        }
+
     def write_pets(self, pets):
         """Write pets data"""
         data = []
         for pet in pets:
-            data.append({
-                'id': pet.id,
-                'name': pet.name,
-                'available_from': pet.available_from.timestamp(),
-                'age': pet.age,
-                'species': pet.species,
-                'breed': pet.breed,
-            })
+            data.append(self.get_output_data(pet))
         self.write(json.dumps(
             {
                 'data': data
